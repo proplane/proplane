@@ -1,0 +1,37 @@
+PropLANE working notes:
+
+- ENC28J60 Ethernet PHY / SPI peripheral selected.  
+- Reasons:
+  + Allows fetching of small sections of the buffer into main memory VIA 10/20MHZ SPI protocol.
+  + Allows Barrier for tx buffer / rx buffer that is user selectable.
+  + Allows disabling of the "MAC Filter" to receive *all* traffic and pass it through, making mesh type networks possible, as long as they share the key.
+- Wireup:
+  Wireup on the SPI bus is done by using the lovely driver written by Harrison Pham to drive the SPI communications using a Cog to synthesize SPI protocol.  This means that we simply ask the driver to xmit or recv to main memory and then we process the data with another COG, then pass it on to the other driver for transmision.  Pretty spiffy, no?
+
+  DC Badge Pin/ Propeller Pin		Ethernet Board Signal
+  -------------------------------------------------------
+  0, 5								INT (Interrupt, signaling that a packet has been recved.)
+  1, 6								SCL (Serial Clock for the SPI Bus)
+  2, 7								SO  (Master In, Slave Out also MISO)
+  3, 8								SI  (Master Out, Slave In also MOSI)
+  4, 9								cs  (Chip Select - Makes the device pay attention on the SPI Bus).
+  10, 11							RST (Reset ethernet controller to known state).
+
+  DC Badge Pin/ Propeller Pin		SD Card Signal
+  ------------------------------------------------
+  24								SCL
+  25								SO
+  26								CS
+  27								SI
+
+  The device itself is powered by an external set of "rails" that provide +3.3v and GND.  All the devices
+  selected for this project support their own on-board voltage regulator and can use either 5v or 3v3.
+  Currently, I'm using the 3.3v inputs and it seems to be working well enough.  
+
+
+  Some (minor but subtle) modifications were made to the ethernet driver in order to allow for the use of several of the interfaces on a single propeller chip.  This means that they are now "cog safed" and you could concievably put up to 7 ethernet interfaces on a single propeller :-).  While cool, I don't think I'd recommend it for bandwidth considerations.
+  
+Currently, there is no way to set the key without recompiling.  This will change shortly.  I just wanted to get the exact code used for the demo at DC 22 up and available to folks.  
+
+  Enjoy!
+  -Phorkus.
